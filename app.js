@@ -4,9 +4,16 @@ const app = express();
 const todoRoutes = require('./routes/todoRoutes');
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
+const { connectDb } = require("./config/db");
+require("dotenv").config(); 
+
+// Connect DB
+
+connectDb()
 
 
  
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 

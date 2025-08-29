@@ -1,42 +1,22 @@
-let todos = [];
-let id = 1;
+const Todo = require("../models/todoModel");
 
-const createTodo = (req, res, next) => {
+const createTodo = async (req, res, next) => {
   try {
-    const { task, done = false, priority } = req.body;
-
-    if (priority !== "low" && priority !== "medium" && priority !== "high")
-      return res.status(400).json({
-        error: "Invalid priority. Must be low, medium, or high",
-      });
-    if (!task)
-      return res.status(400).json({
-        error: "Task is required!",
-      });
-
-    const newTodo = {
-      id: id++,
-      task,
-      done,
-      priority,
-    };
-
-    todos.push(newTodo);
-
+    const todo = await Todo.create(req.body);
     res.status(201).json({
       message: "New todo added successfully!",
-      todo: newTodo,
+      todo: todo,
     });
   } catch (error) {
     next(error);
   }
 };
-const getTodos = (req, res, next) => {
+const getTodos = async (req, res, next) => {
   try {
-    const { priority } = req.query;
-    let result = todos;
-    if (priority) result = todos.filter((t) => t.priority === priority);
-    res.json(result);
+    const query = {};
+    if (req.query.priority) query.priority = req.query.priority;
+
+    const todos = await Todo.find(query);
 
     res.json(todos);
   } catch (error) {
@@ -44,11 +24,11 @@ const getTodos = (req, res, next) => {
   }
 };
 
-const getTodo = (req, res, next) => {
+const getTodo = async (req, res, next) => {
   try {
-    const id = Number(req.params.id);
+    const id = req.params.id;
 
-    const todo = todos.find((t) => t.id === id);
+    const todo = await Todo.findById(id);
 
     if (!todo) {
       return res.status(404).json({ error: "Not found!" });
@@ -60,26 +40,15 @@ const getTodo = (req, res, next) => {
   }
 };
 
-const updateTodo = (req, res, next) => {
+const updateTodo = async (req, res, next) => {
   try {
-    const todo = todos.find((t) => t.id === Number(req.params.id));
-
+    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!todo) {
       return res.status(404).json({ error: "Not found!" });
     }
-
-    if (
-      req.body.priority !== "low" &&
-      req.body.priority !== "medium" &&
-      req.body.priority !== "high"
-    )
-      return res.status(400).json({
-        error: "Invalid priority. Must be low, medium, or high",
-      });
-    todo.task = req.body.task ?? todo.task;
-    todo.done = req.body.done ?? todo.done;
-    todo.priority = req.body.priority ?? todo.priority;
-
     res.json({
       message: "Todo updated successfully!",
       updatedTodo: todo,
@@ -89,11 +58,11 @@ const updateTodo = (req, res, next) => {
   }
 };
 
-const deleteTodo = (req, res, next) => {
+const deleteTodo = async (req, res, next) => {
   try {
-    const prevLength = todos.length;
-    todos = todos.filter((item) => item.id !== Number(req.params.id));
-    if (todos.length === prevLength)
+    const todo = await Todo.findByIdAndDelete(req.params.id);
+
+    if (!todo)
       return res.status(404).json({
         error: "Not found!",
       });
