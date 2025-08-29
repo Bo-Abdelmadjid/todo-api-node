@@ -1,17 +1,18 @@
 const express = require("express");
-const router = express.Router();
 
 const controller = require("../controllers/todoController");
 
+const validateTodo = require("../middlewares/validateTodo");
 
-
-router.post("/", controller.createTodo);
+const router = express.Router();
 
 router.get("/", controller.getTodos);
 
 router.get("/:id", controller.getTodo);
 
-router.put("/:id", controller.updateTodo);
+router.post("/", validateTodo, controller.createTodo);
+
+router.put("/:id", validateTodo, controller.updateTodo);
 
 //
 router.delete("/:id", controller.deleteTodo);

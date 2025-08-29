@@ -1,7 +1,7 @@
 module.exports = (err, req, res, next) => {
-  console.error(err);
-  const status = res.statusCode >= 400 ? res.statusCode : 500;
-  res.status(status).json({
-    error: err.message || "SErver error",
+  console.error("ERror:", err.stack);
+  res.status(500).json({
+    status: "error",
+    message: err.message || "Something went wrong!",
   });
 };

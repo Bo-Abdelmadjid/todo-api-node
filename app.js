@@ -1,11 +1,14 @@
 const express = require("express");
-const app = express();
+
 
 const todoRoutes = require('./routes/todoRoutes');
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
 const { connectDb } = require("./config/db");
 require("dotenv").config(); 
+
+
+const app = express();
 
 // Connect DB
 
